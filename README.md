@@ -2,6 +2,8 @@
 
 A mod that adds shulker box content previews (Android).
 
+Minecraft version: v26.3.1.
+
 ## Acknowledgements
 
 Big thanks to [Kashifro](https://github.com/Kashifro) for finding the `arm64-v8a` signatures and helping out with other things!
