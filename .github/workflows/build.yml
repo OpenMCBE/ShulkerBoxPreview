@@ -1,0 +1,51 @@
+name: Build ShulkerPreview ARM64
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK (needed for NDK tools)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android NDK
+        uses: nttld/setup-ndk@v1
+        id: setup_ndk
+        with:
+          ndk-version: r27c
+          add-to-path: true
+
+      - name: Configure CMake (arm64-v8a)
+        run: |
+          cmake \
+            -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup_ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-26 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -B build \
+            -S .
+        working-directory: ${{ github.workspace }}
+
+      - name: Build
+        run: cmake --build build --config Release -j$(nproc)
+        working-directory: ${{ github.workspace }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShulkerPreview-arm64-v8a
+          path: build/libShulkerPreview.so
+          retention-days: 30
